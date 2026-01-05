@@ -590,11 +590,11 @@ app.use(express.static(__dirname));
 app.use('/uploads', express.static('uploads'));
 
 // Start Server
-app.listen(port, '127.0.0.1', (err) => {
+app.listen(port, '0.0.0.0', (err) => {
   if (err) {
     console.error('Listen error:', err);
     return;
   }
-  console.log(`✅ Memory Care App running at http://localhost:${port}`);
+  console.log(`✅ Memory Care App running on port ${port}`);
   console.log('Server started successfully');
 });
