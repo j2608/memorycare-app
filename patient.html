@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient View - MemoryCare</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="config.js"></script>
+</head>
+<body class="patient-view">
+    <!-- Login Modal for Patient -->
+    <div id="patientLoginModal" style="display: none !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0,0,0,0.95) !important; z-index: 99999 !important; justify-content: center !important; align-items: center !important;">
+        <div style="background: white; padding: 50px; border-radius: 25px; max-width: 500px; width: 90%; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.5);">
+            <h2 style="color: #333; font-size: 48px; margin-bottom: 20px;">🔐 Patient Login</h2>
+            <p style="color: #666; font-size: 24px; margin-bottom: 30px; font-weight: 500;">Enter the reference code provided by your caregiver</p>
+            <div class="form-section">
+                <div class="form-group">
+                    <input type="text" id="patientRefCodeInput" placeholder="Enter Code" style="text-transform: uppercase; font-size: 32px; text-align: center; letter-spacing: 10px; padding: 20px; width: 100%; border: 3px solid #4CAF50; border-radius: 15px; font-family: monospace; font-weight: bold;" maxlength="6">
+                </div>
+                <button id="patientLoginBtn" class="btn btn-primary" style="width: 100%; font-size: 24px; padding: 20px; background: #4CAF50; color: white; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; margin-top: 20px;">
+                    🔓 Login
+                </button>
+            </div>
+            <div id="patientLoginMessage" style="margin-top: 20px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- Emergency SOS Button - Always Visible -->
+    <button id="sosButton" class="sos-button">🆘 EMERGENCY</button>
+    
+    <!-- Debug: Logout/Clear Session Button (bottom right) -->
+    <button onclick="localStorage.clear(); location.reload();" style="position: fixed; bottom: 20px; right: 20px; background: #ff9800; color: white; padding: 15px 25px; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; z-index: 1000; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+        🔄 Reset Login
+    </button>
+
+    <div class="patient-container">
+        <header class="patient-header">
+            <h1 id="welcomeMessage">Hello!</h1>
+            <div class="language-toggle">
+                <select id="languageSelector" class="language-selector">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="bn">বাংলা (Bengali)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="patient-main">
+            <!-- Main Action Buttons -->
+            <div class="action-grid">
+                
+                <!-- Help Me / Lost Button -->
+                <button class="action-btn help-btn" id="helpButton">
+                    <div class="btn-icon">🗺️</div>
+                    <div class="btn-text" data-lang-key="help-me">
+                        HELP ME
+                    </div>
+                </button>
+
+                <!-- Face Recognition Button -->
+                <button class="action-btn face-btn" id="faceButton">
+                    <div class="btn-icon">📸</div>
+                    <div class="btn-text" data-lang-key="who-is-this">
+                        WHO IS THIS?
+                    </div>
+                </button>
+
+                <!-- My Routine Button -->
+                <button class="action-btn routine-btn" id="routineButton">
+                    <div class="btn-icon">📅</div>
+                    <div class="btn-text" data-lang-key="my-routine">
+                        MY ROUTINE
+                    </div>
+                </button>
+
+                <!-- My Medicines Button -->
+                <button class="action-btn medicine-btn" id="medicineButton">
+                    <div class="btn-icon">💊</div>
+                    <div class="btn-text" data-lang-key="my-medicines">
+                        MY MEDICINES
+                    </div>
+                </button>
+
+                <!-- Important People Button -->
+                <button class="action-btn people-btn" id="peopleButton">
+                    <div class="btn-icon">👥</div>
+                    <div class="btn-text" data-lang-key="people-i-know">
+                        PEOPLE I KNOW
+                    </div>
+                </button>
+
+                <!-- Important Places Button -->
+                <button class="action-btn places-btn" id="placesButton">
+                    <div class="btn-icon">🏠</div>
+                    <div class="btn-text" data-lang-key="important-places">
+                        IMPORTANT PLACES
+                    </div>
+                </button>
+                
+                <!-- My Profile Button -->
+                <button class="action-btn profile-btn" id="profileButton" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="btn-icon">👤</div>
+                    <div class="btn-text" data-lang-key="my-profile">
+                        MY PROFILE
+                    </div>
+                </button>
+            </div>
+
+            <!-- Current Time Display -->
+            <div class="time-display">
+                <div id="currentTimePatient"></div>
+                <div id="currentDatePatient"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Face Recognition -->
+    <div id="faceModal" class="modal">
+        <div class="modal-content face-modal-content">
+            <button class="modal-close" id="closeFaceModal">×</button>
+            <h2 data-lang-key="who-is-this">
+                Who Is This Person?
+            </h2>
+            <video id="faceVideo" autoplay></video>
+            <button id="captureBtn" class="btn btn-large btn-primary" data-lang-key="capture">
+                📸 CAPTURE
+            </button>
+            <canvas id="faceCanvas" style="display:none;"></canvas>
+            <div id="faceResult"></div>
+        </div>
+    </div>
+
+    <!-- Modal for Lost/Help Mode -->
+    <div id="lostModal" class="modal">
+        <div class="modal-content lost-modal-content">
+            <div class="lost-header">
+                <h1>
+                    <span class="language-text" data-lang-key="dont-worry">🗺️ DON'T WORRY</span>
+                </h1>
+            </div>
+            <div class="lost-body">
+                <p class="large-text language-text" data-lang-key="help-coming">Help is on the way</p>
+                
+                <div id="lostMapContainer" class="map-container" style="height: 300px; margin: 20px 0; border-radius: 15px; overflow: hidden;"></div>
+                <p class="location-info" id="locationInfo">📍 Getting your location...</p>
+                
+                <div class="direction-arrows">
+                    <div class="arrow">↑</div>
+                    <div class="instruction language-text" data-lang-key="stay-here">Stay where you are</div>
+                </div>
+                
+                <button id="closeLostModal" class="btn btn-large btn-success">
+                    <span class="language-text" data-lang-key="im-okay">I'M OKAY NOW</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Routine -->
+    <div id="routineModal" class="modal">
+        <div class="modal-content info-modal-content">
+            <button class="modal-close" id="closeRoutineModal">×</button>
+            <h2 data-lang-key="my-routine">
+                📅 My Daily Routine
+            </h2>
+            <div id="routineDisplay" class="info-display"></div>
+            <button class="btn btn-large btn-primary" id="speakRoutine" data-lang-key="read-to-me">
+                🔊 READ TO ME
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for Medicines -->
+    <div id="medicineModal" class="modal">
+        <div class="modal-content info-modal-content">
+            <button class="modal-close" id="closeMedicineModal">×</button>
+            <h2 data-lang-key="my-medicines">
+                💊 My Medicines
+            </h2>
+            <div id="medicineDisplay" class="info-display"></div>
+        </div>
+    </div>
+
+    <!-- Modal for People -->
+    <div id="peopleModal" class="modal">
+        <div class="modal-content info-modal-content">
+            <button class="modal-close" id="closePeopleModal">×</button>
+            <h2 data-lang-key="people-i-know">
+                👥 People I Know
+            </h2>
+            <div id="peopleDisplay" class="info-display"></div>
+            <button class="btn btn-large btn-primary" id="speakPeople" data-lang-key="read-to-me">
+                🔊 READ TO ME
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for Places -->
+    <div id="placesModal" class="modal">
+        <div class="modal-content info-modal-content">
+            <button class="modal-close" id="closePlacesModal">×</button>
+            <h2 data-lang-key="important-places">
+                🏠 Important Places
+            </h2>
+            <div id="placesDisplay" class="info-display"></div>
+            <button class="btn btn-large btn-primary" id="speakPlaces" data-lang-key="read-to-me">
+                🔊 READ TO ME
+            </button>
+        </div>
+    </div>
+    
+    <!-- Modal for My Profile -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content info-modal-content">
+            <button class="modal-close" id="closeProfileModal">×</button>
+            <h2 data-lang-key="my-profile">
+                👤 My Profile
+            </h2>
+            <div id="profileDisplay" class="info-display" style="text-align: left; font-size: 24px; line-height: 1.8;"></div>
+            <button class="btn btn-large btn-primary" id="speakProfile" data-lang-key="read-to-me">
+                🔊 READ TO ME
+            </button>
+        </div>
+    </div>
+
+    <!-- Medicine Reminder Notification -->
+    <div id="medicineReminder" class="reminder-notification" style="display:none;">
+        <div class="reminder-content">
+            <h2>💊 Medicine Time!</h2>
+            <div id="reminderMedicineName"></div>
+            <div id="reminderMedicineTime"></div>
+            <div class="reminder-actions">
+                <button id="takeMedicineBtn" class="btn btn-large btn-success">✓ I TOOK IT</button>
+                <button id="snoozeMedicineBtn" class="btn btn-large btn-warning">⏰ REMIND LATER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Watch Charging Reminder -->
+    <div id="watchReminder" class="reminder-notification" style="display:none;">
+        <div class="reminder-content">
+            <h2>⌚ Watch Charging Time!</h2>
+            <p class="large-text" data-lang-key="charge-watch">Please charge your watch now</p>
+            <button id="acknowledgeWatchBtn" class="btn btn-large btn-success">✓ OKAY</button>
+        </div>
+    </div>
+
+    <script src="patient.js"></script>
+</body>
+</html>

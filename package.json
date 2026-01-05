@@ -1,0 +1,41 @@
+{
+  "name": "memorycare-alzheimers-assistant",
+  "version": "1.0.0",
+  "description": "A compassionate Memory Care & Alzheimer's Assistive Web Application for patient safety and caregiver support",
+  "main": "app-server.js",
+  "scripts": {
+    "start": "node app-server.js",
+    "dev": "nodemon app-server.js"
+  },
+  "keywords": [
+    "alzheimers",
+    "memory-care",
+    "healthcare",
+    "assistive-technology",
+    "accessibility",
+    "elderly-care",
+    "caregiver-support"
+  ],
+  "author": "Your Team",
+  "license": "MIT",
+  "dependencies": {
+    "@azure-rest/maps-search": "^1.0.0-beta.2",
+    "@azure/cognitiveservices-computervision": "^8.2.0",
+    "@azure/cognitiveservices-face": "^5.0.0",
+    "@azure/identity": "^3.4.1",
+    "@azure/keyvault-secrets": "^4.7.2",
+    "@azure/ms-rest-js": "^2.7.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase-admin": "^13.6.0",
+    "microsoft-cognitiveservices-speech-sdk": "^1.32.0",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

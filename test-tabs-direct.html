@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Direct Tab Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; padding: 20px; background: #1a1a1a; color: white; }
+        .test-area { background: #2d2d2d; padding: 30px; border-radius: 15px; margin: 20px 0; }
+        button { 
+            padding: 20px 40px; 
+            font-size: 18px; 
+            margin: 10px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 10px; 
+            background: #4CAF50; 
+            color: white;
+            font-weight: bold;
+        }
+        button:hover { background: #45a049; transform: scale(1.05); }
+        .tab-btn { background: #555; }
+        .tab-btn.active { background: #4CAF50; }
+        .tab-panel { display: none; padding: 30px; background: #3a3a3a; border-radius: 10px; margin-top: 20px; }
+        .tab-panel.active { display: block; }
+        .log { background: #000; color: #0f0; padding: 15px; border-radius: 5px; font-family: monospace; margin: 20px 0; max-height: 400px; overflow-y: auto; }
+        .success { color: #4CAF50; font-size: 24px; font-weight: bold; }
+        .error { color: #f44336; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Direct Tab Functionality Test</h1>
+    
+    <div class="test-area">
+        <h2>Test 1: Simple Tab System (Like MemoryCare)</h2>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="profile">👤 Profile</button>
+            <button class="tab-btn" data-tab="routine">📅 Routine</button>
+            <button class="tab-btn" data-tab="people">👥 People</button>
+            <button class="tab-btn" data-tab="places">📍 Places</button>
+        </div>
+        
+        <div id="profileTab" class="tab-panel active">
+            <h2 class="success">✅ Profile Tab Works!</h2>
+            <p>This is the profile content. If you can see other tabs when clicking above, the tab system works.</p>
+        </div>
+        
+        <div id="routineTab" class="tab-panel">
+            <h2 class="success">✅ Routine Tab Works!</h2>
+            <p>This is the daily routine content. Tab switching is working correctly!</p>
+        </div>
+        
+        <div id="peopleTab" class="tab-panel">
+            <h2 class="success">✅ People Tab Works!</h2>
+            <p>This is the known people content. Tabs are functioning properly!</p>
+        </div>
+        
+        <div id="placesTab" class="tab-panel">
+            <h2 class="success">✅ Places Tab Works!</h2>
+            <p>This is the known places content. Everything is working!</p>
+        </div>
+    </div>
+    
+    <div class="test-area">
+        <h2>Test 2: Event Listener Check</h2>
+        <button onclick="testEventListeners()">🔍 Check If Event Listeners Are Attached</button>
+        <button onclick="manualSwitch()">🔧 Manually Switch to Routine Tab</button>
+        <button onclick="checkDOM()">📋 Check DOM Elements</button>
+        <div id="testResult" style="margin-top: 20px;"></div>
+    </div>
+    
+    <div class="test-area">
+        <h2>Console Log</h2>
+        <div class="log" id="log">Waiting for tests...</div>
+    </div>
+    
+    <div class="test-area">
+        <h2>Quick Fix</h2>
+        <button onclick="window.location.href='/caregiver.html'">🚀 Open Real Caregiver Dashboard</button>
+        <p style="margin-top: 15px;">Press F12 when it opens and watch the console!</p>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        function log(msg) {
+            const time = new Date().toLocaleTimeString();
+            logs.push(`[${time}] ${msg}`);
+            document.getElementById('log').innerHTML = logs.slice(-20).join('<br>');
+            console.log(msg);
+        }
+        
+        // Set up tab switching exactly like MemoryCare
+        function setupTabSystem() {
+            log('Setting up tab system...');
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            log(`Found ${tabButtons.length} tab buttons`);
+            
+            tabButtons.forEach((btn, index) => {
+                log(`Attaching listener to button ${index}: ${btn.dataset.tab}`);
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    log(`🖱️ Tab clicked: ${tab}`);
+                    switchTab(tab);
+                });
+            });
+            
+            log('✅ Tab system ready!');
+        }
+        
+        function switchTab(tabName) {
+            log(`Switching to: ${tabName}`);
+            
+            // Remove active from all
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                log(`Removed active from: ${btn.dataset.tab}`);
+            });
+            
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+                log(`Hidden panel: ${panel.id}`);
+            });
+            
+            // Add active to selected
+            const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            const selectedPanel = document.getElementById(`${tabName}Tab`);
+            
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+                log(`✅ Activated button: ${tabName}`);
+            } else {
+                log(`❌ ERROR: Button not found for ${tabName}`);
+            }
+            
+            if (selectedPanel) {
+                selectedPanel.classList.add('active');
+                log(`✅ Showed panel: ${tabName}Tab`);
+            } else {
+                log(`❌ ERROR: Panel not found for ${tabName}Tab`);
+            }
+        }
+        
+        function testEventListeners() {
+            const result = document.getElementById('testResult');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            let html = '<h3>Event Listener Test Results:</h3>';
+            buttons.forEach((btn, i) => {
+                const hasListener = btn.onclick !== null || getEventListeners(btn).click;
+                html += `<div>Button ${i} (${btn.dataset.tab}): ${hasListener ? '✅ Has listener' : '❓ Check console'}</div>`;
+            });
+            
+            result.innerHTML = html;
+            log('Event listener test complete - check console with: getEventListeners(document.querySelector(".tab-btn"))');
+        }
+        
+        function manualSwitch() {
+            log('Manually switching to routine tab...');
+            switchTab('routine');
+        }
+        
+        function checkDOM() {
+            const result = document.getElementById('testResult');
+            const buttons = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.tab-panel');
+            
+            let html = '<h3>DOM Check:</h3>';
+            html += `<div class="success">✅ Found ${buttons.length} tab buttons</div>`;
+            html += `<div class="success">✅ Found ${panels.length} tab panels</div>`;
+            html += '<h4>Buttons:</h4>';
+            buttons.forEach(btn => {
+                html += `<div>• ${btn.dataset.tab} - Active: ${btn.classList.contains('active')}</div>`;
+            });
+            html += '<h4>Panels:</h4>';
+            panels.forEach(panel => {
+                html += `<div>• ${panel.id} - Visible: ${panel.classList.contains('active')}</div>`;
+            });
+            
+            result.innerHTML = html;
+            log('DOM check complete');
+        }
+        
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Page loaded');
+            setupTabSystem();
+            log('👆 Try clicking the tab buttons above!');
+        });
+    </script>
+</body>
+</html>

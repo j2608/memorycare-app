@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryCare - When Memories Fade, Stories Guide the Way</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="marketing-body">
+
+    <!-- Navigation -->
+    <nav class="marketing-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">🧠</span> MemoryCare
+            </div>
+            <div class="nav-links">
+                <select id="landingLanguageSelector" style="padding: 10px 15px; border-radius: 8px; border: 2px solid #667eea; background: white; color: #667eea; font-size: 16px; font-weight: 500; cursor: pointer; margin-right: 20px;">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="hi">🇮🇳 हिन्दी</option>
+                    <option value="te">తెలుగు</option>
+                    <option value="ta">தமிழ்</option>
+                </select>
+                <a href="#features" data-lang-key="nav-features">Features</a>
+                <a href="#story-mode" data-lang-key="nav-story">Story Mode</a>
+                <a href="#caregivers" data-lang-key="nav-caregivers">For Caregivers</a>
+                <a href="role-selection.html" class="btn-nav-cta" data-lang-key="nav-start">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="marketing-hero">
+        <div class="hero-content">
+            <span class="hero-badge" data-lang-key="hero-badge">✨ Compassionate AI Assistance</span>
+            <h1 style="background-image: url('https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60'); background-size: cover; background-position: center; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; background-repeat: no-repeat;"><span data-lang-key="hero-title1">When memories fade,</span> <br><span class="highlight-text" data-lang-key="hero-title2">stories guide the way.</span></h1>
+            <p class="hero-desc" data-lang-key="hero-desc">
+                A gentle, voice-first companion that turns confusion into connection. 
+                We use familiar stories, photos, and warm lighting to help Alzheimer's patients remember who they love.
+            </p>
+            <div class="hero-buttons">
+                <a href="role-selection.html" class="btn-primary-lg" data-lang-key="hero-start">Get Started</a>
+                <a href="#how-it-works" class="btn-secondary-lg" data-lang-key="hero-how">See How It Works</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="visual-circle"></div>
+            <div class="visual-card card-1">
+                <i class="fas fa-heart"></i>
+                <span>"It's your son, Rahul"</span>
+            </div>
+            <div class="visual-card card-2">
+                <i class="fas fa-image"></i>
+                <span>Wedding Photo 1985</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Problem Section -->
+    <section class="problem-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Confusion is scary. <br>We make it gentle.</h2>
+                <p>For someone with Alzheimer's, forgetting a face isn't just a memory lapse—it's a moment of panic. Traditional reminders feel cold. We believe in a warmer approach.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Story Feature (Main Highlight) -->
+    <section id="story-mode" class="story-feature-section">
+        <div class="container">
+            <div class="story-grid">
+                <div class="story-text">
+                    <span class="feature-label">INNOVATION</span>
+                    <h2>Memories, Told Like Stories</h2>
+                    <p>Instead of just saying "This is your daughter," MemoryCare creates an immersive moment.</p>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <div class="step-icon"><i class="fas fa-camera"></i></div>
+                            <div class="step-info">
+                                <h3>Recognizes the Face</h3>
+                                <p>The camera gently identifies the visitor.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="fas fa-lightbulb"></i></div>
+                            <div class="step-info">
+                                <h3>Sets the Mood</h3>
+                                <p>Screen softens, warm lighting engages.</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="fas fa-book-open"></i></div>
+                            <div class="step-info">
+                                <h3>Tells the Story</h3>
+                                <p>"Remember the day you taught her to ride a bike?" Photos and videos play automatically.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-preview">
+                    <div class="preview-screen">
+                        <div class="preview-overlay"></div>
+                        <div class="preview-content">
+                            <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Memory" class="memory-img">
+                            <div class="caption">"Summer 1998 - The Beach Trip"</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Helps -->
+    <section id="features" class="benefits-section">
+        <div class="container">
+            <h2>Designed for Peace of Mind</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="icon-box calm"><i class="fas fa-spa"></i></div>
+                    <h3>Reduces Anxiety</h3>
+                    <p>Replaces the fear of the unknown with the comfort of familiar stories.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon-box brain"><i class="fas fa-brain"></i></div>
+                    <h3>Natural Recall</h3>
+                    <p>Uses emotional triggers like music and old photos to spark genuine memory.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon-box heart"><i class="fas fa-hands-helping"></i></div>
+                    <h3>Caregiver Support</h3>
+                    <p>Gives families a way to be present even when they can't be there physically.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Features -->
+    <section class="features-list-section">
+        <div class="container">
+            <div class="features-row">
+                <div class="feature-box">
+                    <i class="fas fa-pills"></i>
+                    <h3>Medicine Reminders</h3>
+                    <p>Visual and audio alerts for medication.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <h3>Lost & Found</h3>
+                    <p>GPS tracking and "Take Me Home" guidance.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-user-md"></i>
+                    <h3>Doctor Visits</h3>
+                    <p>Keeps track of appointments and health logs.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-phone-alt"></i>
+                    <h3>Emergency SOS</h3>
+                    <p>One-tap connection to family members.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Caregiver Section -->
+    <section id="caregivers" class="caregiver-section">
+        <div class="container">
+            <div class="caregiver-content">
+                <h2>For the Caregivers</h2>
+                <p>You carry the weight of care. We help lighten the load.</p>
+                <ul class="caregiver-features">
+                    <li><i class="fas fa-check-circle"></i> Upload photos & videos remotely</li>
+                    <li><i class="fas fa-check-circle"></i> Write "Memory Stories" for the patient</li>
+                    <li><i class="fas fa-check-circle"></i> Monitor location & safety alerts</li>
+                    <li><i class="fas fa-check-circle"></i> Manage daily routines & medicines</li>
+                </ul>
+                <a href="/role-selection" class="btn-white">Enter Caregiver Dashboard</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accessibility -->
+    <section class="accessibility-section">
+        <div class="container">
+            <div class="access-badge">ACCESSIBILITY FIRST</div>
+            <h2>Built for Seniors</h2>
+            <div class="access-grid">
+                <div class="access-item">
+                    <span>🗣️</span>
+                    <h4>Voice First</h4>
+                    <p>Just speak to navigate.</p>
+                </div>
+                <div class="access-item">
+                    <span>👁️</span>
+                    <h4>High Contrast</h4>
+                    <p>Easy to read text.</p>
+                </div>
+                <div class="access-item">
+                    <span>🌐</span>
+                    <h4 data-lang-key="access-lang-title">Multi-Language</h4>
+                    <p data-lang-key="access-lang-desc">10+ Indian languages supported.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <footer class="marketing-footer">
+        <div class="container">
+            <h2>Because memories don't disappear.<br>They just need a way back.</h2>
+            <a href="/role-selection" class="btn-primary-lg glow-effect">Start Using MemoryCare</a>
+            <div class="footer-links">
+                <p>&copy; 2025 MemoryCare Project. Built for Microsoft Imagine Cup.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Multi-language translations
+        const landingTranslations = {
+            en: {
+                'nav-features': 'Features',
+                'nav-story': 'Story Mode',
+                'nav-caregivers': 'For Caregivers',
+                'nav-start': 'Get Started',
+                'hero-badge': '✨ Compassionate AI Assistance',
+                'hero-title1': 'When memories fade,',
+                'hero-title2': 'stories guide the way.',
+                'hero-desc': 'A gentle, voice-first companion that turns confusion into connection. We use familiar stories, photos, and warm lighting to help Alzheimer\'s patients remember who they love.',
+                'hero-start': 'Get Started',
+                'hero-how': 'See How It Works',
+                'access-lang-title': 'Multi-Language',
+                'access-lang-desc': '10+ Indian languages supported.'
+            },
+            hi: {
+                'nav-features': 'विशेषताएँ',
+                'nav-story': 'कहानी मोड',
+                'nav-caregivers': 'देखभालकर्ताओं के लिए',
+                'nav-start': 'शुरू करें',
+                'hero-badge': '✨ सहानुभूतिपूर्ण AI सहायता',
+                'hero-title1': 'जब यादें फीकी पड़ती हैं,',
+                'hero-title2': 'कहानियां रास्ता दिखाती हैं।',
+                'hero-desc': 'एक कोमल साथी जो भ्रम को जुड़ाव में बदल देता है। हम परिचित कहानियों, तस्वीरों का उपयोग करते हैं।',
+                'hero-start': 'शुरू करें',
+                'hero-how': 'कैसे काम करता है',
+                'access-lang-title': 'बहु-भाषा',
+                'access-lang-desc': '10+ भारतीय भाषाएँ समर्थित'
+            },
+            te: {
+                'nav-features': 'వైశిష్ట్యాలు',
+                'nav-story': 'కథ మోడ్',
+                'nav-caregivers': 'సంరక్షకుల కోసం',
+                'nav-start': 'ప్రారంభించండి',
+                'hero-badge': '✨ సహానుభూతి గల AI సహాయం',
+                'hero-title1': 'జ్ఞాపకాలు మరుగుతున్నప్పుడు,',
+                'hero-title2': 'కథలు మార్గం చూపిస్తాయి.',
+                'hero-desc': 'కంఫ్యూషన్‌ని కనెక్షన్‌గా మార్చే మృదువుగా ఉన్న సహచరుడు. మేము పరిచిత కథలు, ఫోటోలను ఉపయోగిస్తాము.',
+                'hero-start': 'ప్రారంభించండి',
+                'hero-how': 'ఎలా పనిచేస్తుందో చూడండి',
+                'access-lang-title': 'బహు-భాషా',
+                'access-lang-desc': '10+ భారత భాషలు మద్దతు'
+            },
+            ta: {
+                'nav-features': 'அம்சங்கள்',
+                'nav-story': 'கதை முறை',
+                'nav-caregivers': 'பராமரிப்பாளர்களுக்காக',
+                'nav-start': 'தொடங்குக',
+                'hero-badge': '✨ அனுதாபமுள்ள AI உதவி',
+                'hero-title1': 'ஞாபகங்கள் மறையும்போது,',
+                'hero-title2': 'கதைகள் வழிகாட்டுகின்றன.',
+                'hero-desc': 'குழப்பத்தை தோழமையாக மாற்றும் மற்டும் துணை. பரிசயமான கதைகளை பயன்படுத்துகிறோம்.',
+                'hero-start': 'தொடங்குக',
+                'hero-how': 'எப்படி செயல்படுகிறது',
+                'access-lang-title': 'பல-மொழி',
+                'access-lang-desc': '10+ இந்திய மொழிகள்'
+            }
+        };
+
+        let currentLang = 'en';
+
+        function updateLandingLanguage() {
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.dataset.langKey;
+                if (landingTranslations[currentLang] && landingTranslations[currentLang][key]) {
+                    el.textContent = landingTranslations[currentLang][key];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const selector = document.getElementById('landingLanguageSelector');
+            selector.addEventListener('change', (e) => {
+                currentLang = e.target.value;
+                updateLandingLanguage();
+            });
+        });
+    </script>
+
+</body>
+</html>

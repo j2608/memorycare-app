@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Dashboard</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #ddd; }
+        .box { background: #2d2d2d; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; font-size: 14px; }
+        pre { background: #000; padding: 10px; overflow-x: auto; }
+        h2 { color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <h1>🔧 MemoryCare Debug Dashboard</h1>
+    
+    <div class="box">
+        <h2>1. Current State</h2>
+        <div id="currentState">Checking...</div>
+    </div>
+    
+    <div class="box">
+        <h2>2. Test Actions</h2>
+        <button onclick="testServer()">Test Server</button>
+        <button onclick="createSession()">Create New Session</button>
+        <button onclick="clearAll()">Clear All & Reload</button>
+        <button onclick="openCaregiver()">Open Caregiver</button>
+        <button onclick="openPatient()">Open Patient</button>
+    </div>
+    
+    <div class="box">
+        <h2>3. Server Response</h2>
+        <div id="serverResponse">No test run yet</div>
+    </div>
+    
+    <div class="box">
+        <h2>4. Console Log</h2>
+        <pre id="consoleLog">Waiting for actions...</pre>
+    </div>
+
+    <script>
+        let logs = [];
+        
+        function log(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logs.push(`[${timestamp}] ${prefix} ${msg}`);
+            document.getElementById('consoleLog').textContent = logs.slice(-20).join('\n');
+        }
+        
+        async function checkState() {
+            const code = localStorage.getItem('currentRefCode');
+            const state = document.getElementById('currentState');
+            
+            if (code) {
+                state.innerHTML = `
+                    <div class="success">✅ Reference Code: <strong>${code}</strong></div>
+                    <div>Stored in localStorage</div>
+                `;
+                log(`Found code in storage: ${code}`, 'success');
+            } else {
+                state.innerHTML = `<div class="warning">⚠️ No reference code in storage</div>`;
+                log('No code in storage', 'warning');
+            }
+        }
+        
+        async function testServer() {
+            log('Testing server connection...');
+            const response = document.getElementById('serverResponse');
+            
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+                response.innerHTML = `
+                    <div class="success">✅ Server is running!</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                log('Server test: SUCCESS', 'success');
+            } catch (error) {
+                response.innerHTML = `
+                    <div class="error">❌ Server error: ${error.message}</div>
+                    <div>Make sure server is running: node app-server.js</div>
+                `;
+                log(`Server test: FAILED - ${error.message}`, 'error');
+            }
+        }
+        
+        async function createSession() {
+            log('Creating new session...');
+            const response = document.getElementById('serverResponse');
+            
+            try {
+                const res = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    localStorage.setItem('currentRefCode', data.referenceCode);
+                    response.innerHTML = `
+                        <div class="success">✅ Session created!</div>
+                        <div style="font-size: 24px; margin: 10px 0;">
+                            Code: <strong>${data.referenceCode}</strong>
+                        </div>
+                        <div>Saved to localStorage</div>
+                    `;
+                    log(`Session created: ${data.referenceCode}`, 'success');
+                    checkState();
+                } else {
+                    throw new Error('Failed to create session');
+                }
+            } catch (error) {
+                response.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+                log(`Create session: FAILED - ${error.message}`, 'error');
+            }
+        }
+        
+        function clearAll() {
+            log('Clearing all storage...');
+            localStorage.clear();
+            log('Storage cleared', 'success');
+            location.reload();
+        }
+        
+        function openCaregiver() {
+            log('Opening caregiver dashboard...');
+            window.open('/caregiver.html', '_blank');
+        }
+        
+        function openPatient() {
+            log('Opening patient view...');
+            window.open('/patient.html', '_blank');
+        }
+        
+        // Auto-check on load
+        window.onload = () => {
+            log('Debug dashboard loaded');
+            checkState();
+            testServer();
+        };
+        
+        // Override console methods to capture logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            log(args.join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            log(args.join(' '), 'error');
+            originalError.apply(console, args);
+        };
+    </script>
+</body>
+</html>
