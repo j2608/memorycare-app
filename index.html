@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryCare - Alzheimer's Assistant</title>
+    
+    <!-- Health & Safety Trigger System -->
+    <script src="health-triggers.js"></script>
+    <script src="google-fit-integration.js"></script>
+    
+    <script>
+        // Auto-redirect to landing page after modules load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ MemoryCare app loaded with health triggers enabled');
+            
+            // Initialize health monitoring
+            setTimeout(() => {
+                // Redirect to landing
+                window.location.href = 'landing.html';
+            }, 1000);
+        });
+    </script>
+</head>
+<body>
+    <p>Loading MemoryCare with Health Monitoring...</p>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caregiver Dashboard - MemoryCare</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <div class="caregiver-dashboard">
+        <!-- Login/Setup Modal -->
+        <div id="setupModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="document.getElementById('setupModal').style.display='none'" style="position: absolute; top: 10px; right: 15px; background: #f44336; color: white; border: none; font-size: 36px; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 9999;">×</button>
+                <h2>🔑 Caregiver Access</h2>
+                <div class="form-section">
+                    <button id="createNewSessionBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
+                        ➕ Create New Patient Session
+                    </button>
+                    <div style="text-align: center; margin: 20px 0;">
+                        <strong>OR</strong>
+                    </div>
+                    <div class="form-group">
+                        <label>Enter Reference Code</label>
+                        <input type="text" id="refCodeInput" placeholder="Enter 6-character code" style="text-transform: uppercase;" maxlength="6">
+                    </div>
+                    <button id="loginBtn" class="btn btn-primary" style="width: 100%;">
+                        🔓 Access Patient Data
+                    </button>
+                </div>
+                <div id="setupMessage" style="margin-top: 15px; text-align: center;"></div>
+            </div>
+        </div>
+
+        <header class="dashboard-header">
+            <div class="header-left">
+                <a href="role-selection.html" class="back-btn">← Home</a>
+                <h1>Caregiver Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div id="refCodeDisplay" style="background: #4CAF50; padding: 10px 20px; border-radius: 10px; margin-right: 15px; font-weight: bold; color: white;">
+                    Code: <span id="currentRefCode">------</span>
+                </div>
+                <span id="currentTime"></span>
+            </div>
+        </header>
+
+        <!-- Alerts Section -->
+        <div class="alerts-section" id="alertsSection"></div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="profile">👤 Patient Profile</button>
+            <button class="tab-btn" data-tab="routine">📅 Daily Routine</button>
+            <button class="tab-btn" data-tab="people">👥 Known People</button>
+            <button class="tab-btn" data-tab="places">📍 Known Places</button>
+            <button class="tab-btn" data-tab="medicines">💊 Medicines</button>
+            <button class="tab-btn" data-tab="appointments">🏥 Appointments</button>
+            <button class="tab-btn" data-tab="contacts">📞 Emergency Contacts</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            
+            <!-- Patient Profile Tab -->
+            <div id="profileTab" class="tab-panel active">
+                <h2>Patient Information</h2>
+                <form id="profileForm" class="form-section">
+                    <div class="form-group">
+                        <label>Patient Name</label>
+                        <input type="text" id="patientName" placeholder="Enter patient name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" id="patientAge" placeholder="Enter age">
+                    </div>
+                    <div class="form-group">
+                        <label>Condition Details</label>
+                        <textarea id="patientCondition" placeholder="Brief description of condition" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Contact Name</label>
+                        <input type="text" id="emergencyContact" placeholder="Primary caregiver name">
+                    </div>
+                    <div class="form-group">
+                        <label>Emergency Contact Phone</label>
+                        <input type="tel" id="emergencyPhone" placeholder="+91 1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label>Home Address</label>
+                        <textarea id="patientAddress" placeholder="Complete home address" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Profile</button>
+                </form>
+                
+                <div class="form-section" style="margin-top: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px;">
+                    <h3 style="margin-top: 0;">🔑 Patient Login Code</h3>
+                    <p style="font-size: 14px; opacity: 0.9;">Generate a unique 6-digit code for patient to login to the app</p>
+                    <div style="display: flex; gap: 15px; align-items: center; margin: 20px 0;">
+                        <div id="generatedPatientCode" style="flex: 1; background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px;">
+                            ------
+                        </div>
+                        <button type="button" id="generatePatientCodeBtn" class="btn" style="background: white; color: #667eea; font-weight: bold; padding: 20px 30px;">
+                            🎲 Generate Code
+                        </button>
+                    </div>
+                    <div id="patientCodeStatus" style="text-align: center; font-size: 14px; margin-top: 10px;"></div>
+                    <p style="font-size: 12px; opacity: 0.8; margin-top: 15px;">💡 Patient will use this code to login on their device</p>
+                </div>
+            </div>
+
+            <!-- Daily Routine Tab -->
+            <div id="routineTab" class="tab-panel">
+                <h2>Daily Routine</h2>
+                <form id="routineForm" class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" id="routineTime" required>
+                        </div>
+                        <div class="form-group flex-grow">
+                            <label>Activity</label>
+                            <input type="text" id="routineActivity" placeholder="e.g., Breakfast, Exercise, Nap" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add to Routine</button>
+                </form>
+                <div id="routineList" class="list-container"></div>
+            </div>
+
+            <!-- Known People Tab -->
+            <div id="peopleTab" class="tab-panel">
+                <h2>Known People & Facial Recognition</h2>
+                <form id="peopleForm" class="form-section">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="personName" placeholder="Enter person's name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Relation</label>
+                        <input type="text" id="personRelation" placeholder="e.g., Daughter, Son, Friend" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📸 Upload Face Photo for Recognition</label>
+                        <input type="file" id="personPhotoFile" accept="image/*" class="file-input">
+                        <div id="photoPreview" class="photo-preview"></div>
+                        <small style="color: #666;">Upload a clear photo of the person's face for better recognition</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🎤 Voice Note (Optional)</label>
+                        <input type="file" id="personVoice" accept="audio/*" class="file-input">
+                        <small style="color: #666;">Upload a voice recording (e.g., "Hi Dad, it's me, John")</small>
+                    </div>
+
+                    <!-- Memory Timeline Section -->
+                    <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                        <h3>📖 Memory Timeline</h3>
+                        <p class="small-text">Add photos or videos with specific stories to create a sequence.</p>
+                        
+                        <div class="form-group">
+                            <label>1. Choose Photo or Video</label>
+                            <input type="file" id="timelineMedia" accept="image/*,video/*,audio/*" class="file-input">
+                        </div>
+                        <div class="form-group">
+                            <label>2. What is the memory?</label>
+                            <input type="text" id="timelineCaption" placeholder="e.g. 'This was at your 60th birthday. You were so happy.'">
+                        </div>
+                        <button type="button" id="addMomentBtn" class="btn btn-secondary" style="width: 100%;">➕ Add to Story</button>
+                        
+                        <!-- List of added moments -->
+                        <div id="timelineList" class="timeline-preview-list" style="margin-top: 15px;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="personDescription" placeholder="Helpful details to remember" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Person</button>
+                </form>
+                <div id="peopleList" class="list-container"></div>
+            </div>
+
+            <!-- Known Places Tab -->
+            <div id="placesTab" class="tab-panel">
+                <h2>Known Places</h2>
+                <form id="placesForm" class="form-section">
+                    <div class="form-group">
+                        <label>Place Name</label>
+                        <input type="text" id="placeName" placeholder="e.g., Home, Park, Hospital" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location (Click on map to select)</label>
+                        <div id="mapPicker" style="height: 300px; width: 100%; border-radius: 10px; margin-bottom: 10px; border: 2px solid #ddd;"></div>
+                        <input type="text" id="placeAddress" placeholder="Address or Coordinates" required readonly style="background-color: #f0f0f0;">
+                        <input type="hidden" id="placeLat">
+                        <input type="hidden" id="placeLng">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="placeDescription" placeholder="Why this place is important" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Place</button>
+                </form>
+                <div id="placesList" class="list-container"></div>
+            </div>
+
+            <!-- Medicines Tab -->
+            <div id="medicinesTab" class="tab-panel">
+                <h2>Medicine Schedule</h2>
+                <form id="medicineForm" class="form-section">
+                    <div class="form-group">
+                        <label>Medicine Name</label>
+                        <input type="text" id="medicineName" placeholder="Enter medicine name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" id="medicineTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Dosage</label>
+                            <input type="text" id="medicineDosage" placeholder="e.g., 1 tablet" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Instructions</label>
+                        <textarea id="medicineInstructions" placeholder="e.g., Take after food" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Medicine</button>
+                </form>
+                <div id="medicineList" class="list-container"></div>
+            </div>
+
+            <!-- Appointments Tab -->
+            <div id="appointmentsTab" class="tab-panel">
+                <h2>Doctor Appointments</h2>
+                <form id="appointmentForm" class="form-section">
+                    <div class="form-group">
+                        <label>Doctor Name</label>
+                        <input type="text" id="doctorName" placeholder="Enter doctor's name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="appointmentDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" id="appointmentTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="appointmentLocation" placeholder="Hospital/Clinic name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purpose</label>
+                        <textarea id="appointmentPurpose" placeholder="Reason for visit" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Appointment</button>
+                </form>
+                <div id="appointmentList" class="list-container"></div>
+            </div>
+
+            <!-- Emergency Contacts Tab -->
+            <div id="contactsTab" class="tab-panel">
+                <h2>📞 Emergency Contacts</h2>
+                <p>Add family members or doctors who can be called quickly by the patient.</p>
+                <form id="contactsForm" class="form-section">
+                    <div class="form-group">
+                        <label>Contact Name</label>
+                        <input type="text" id="contactName" placeholder="e.g. Son, Dr. Smith" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="contactPhone" placeholder="e.g. 9876543210" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Relation / Role</label>
+                        <input type="text" id="contactRelation" placeholder="e.g. Son, Doctor, Neighbor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Photo (Optional)</label>
+                        <input type="file" id="contactPhotoFile" accept="image/*" class="file-input">
+                        <div id="contactPhotoPreview" class="photo-preview"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Contact</button>
+                </form>
+                <div id="contactsList" class="list-container"></div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-panel">
+                <h2>Settings</h2>
+                
+                <div class="form-section">
+                    <h3>🏠 Home Location (Geo-fencing)</h3>
+                    <p>Set the home location to detect when the patient leaves.</p>
+                    <div id="homeMap" style="height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
+                    <div class="form-group">
+                        <label>Selected Address</label>
+                        <input type="text" id="homeAddress" placeholder="Click on map to select home" readonly>
+                        <input type="hidden" id="homeLat">
+                        <input type="hidden" id="homeLng">
+                    </div>
+                    <button id="saveHomeBtn" class="btn btn-primary">💾 Save Home Location</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>⌚ Watch Charging Reminder</h3>
+                    <div class="form-group">
+                        <label>Daily Charging Time</label>
+                        <input type="time" id="chargingTime">
+                    </div>
+                    <button id="saveChargingBtn" class="btn btn-primary">💾 Save Charging Time</button>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏃 Google Fit Integration</h3>
+                    <p>Enable health data monitoring from Google Fit (steps, heart rate, sleep, calories)</p>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 15px;">
+                        <label style="margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="googleFitToggle" style="width: 24px; height: 24px; cursor: pointer;">
+                            <span style="font-size: 18px; font-weight: 600;">Enable Google Fit Sync</span>
+                        </label>
+                    </div>
+                    <div id="googleFitStatus" style="padding: 15px; border-radius: 8px; margin-top: 10px; display: none;">
+                        <div id="googleFitInfo"></div>
+                    </div>
+                    <div id="healthDataDisplay" style="display: none; margin-top: 15px;">
+                        <h4>Latest Health Data</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Steps Today</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #2196F3;" id="stepsCount">0</div>
+                            </div>
+                            <div style="background: #fce4ec; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Heart Rate</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #e91e63;" id="heartRateValue">--</div>
+                            </div>
+                            <div style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Calories</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #ff9800;" id="caloriesValue">0</div>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Sleep (hrs)</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #4caf50;" id="sleepValue">--</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666; text-align: right;" id="lastSyncTime"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏠 Indoor Room Locations</h3>
+                    <p>Configure room locations for automatic monitoring. Patient's phone will auto-detect which room they're in.</p>
+                    
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4 style="margin-top: 0;">How It Works:</h4>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Patient goes to each room with their phone</li>
+                            <li>Click "Save Current Room" button for that room</li>
+                            <li>App learns the location fingerprint</li>
+                            <li>Auto-detects room entry and triggers actions</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="room-setup">
+                        <div class="room-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🚽</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Bathroom</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Auto-starts timer when entered</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('bathroom')" class="btn" style="background: white; color: #667eea; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="bathroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🍳</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Kitchen</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Asks "Why are you here?" and listens</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('kitchen')" class="btn" style="background: white; color: #f5576c; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="kitchen-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🛏️</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Bedroom</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Checks if it's bedtime/naptime</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('bedroom')" class="btn" style="background: white; color: #00f2fe; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="bedroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🛋️</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Living Room</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Greets patient warmly</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('livingroom')" class="btn" style="background: white; color: #fa709a; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="livingroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <!-- Custom Room Addition -->
+                        <div class="room-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 25px; border-radius: 15px; margin-top: 25px; border: 3px dashed #999;">
+                            <h4 style="margin-top: 0; color: #333;">➕ Add Custom Room</h4>
+                            <p style="color: #666; margin: 10px 0;">Add any extra rooms like Balcony, Study Room, Garden, etc.</p>
+                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                <div style="flex: 1;">
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Room Name</label>
+                                    <input type="text" id="customRoomName" placeholder="e.g. Balcony, Garden, Study Room" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="display: block; margin-bottom: 5px; color: #333; font-weight: 600;">Room Icon (emoji)</label>
+                                    <input type="text" id="customRoomIcon" placeholder="e.g. 🌿 📖 🌞" maxlength="2" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; text-align: center;">
+                                </div>
+                                <button onclick="addCustomRoom()" class="btn btn-primary" style="padding: 12px 30px; white-space: nowrap;">
+                                    ➕ Add & Save Location
+                                </button>
+                            </div>
+                            <div id="customRoom-status" style="margin-top: 15px; font-size: 14px; font-weight: 600;"></div>
+                        </div>
+                        
+                        <!-- Saved Custom Rooms -->
+                        <div id="savedCustomRoomsList" style="margin-top: 20px;"></div>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <strong>💡 Tip:</strong> For best results, have the patient stand in the CENTER of each room when saving the location. The app will remember the WiFi signal patterns for accurate detection.
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>📊 Recent Alerts</h3>
+                    <div id="recentAlerts" class="alerts-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="permissions-handler.js"></script>
+    <script src="cross-browser-sync.js?v=20260106"></script>
+    <script src="google-fit-integration.js"></script>
+    <script src="health-triggers.js"></script>
+    <script src="room-setup.js"></script>
+    <script src="custom-rooms.js"></script>
+    <script src="caregiver.js?v=20260106"></script>
+    <script>
+        // Initialize cross-browser sync and show status
+        console.log('🚀 Starting MemoryCare Caregiver Dashboard...');
+        
+        if (typeof initCrossBrowserSync !== 'undefined') {
+            console.log('📡 Initializing Firebase sync...');
+            
+            initCrossBrowserSync()
+                .then(success => {
+                    if (success) {
+                        console.log('✅ Firebase connected - data will sync across browsers');
+                        // Show visual indicator
+                        const indicator = document.createElement('div');
+                        indicator.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #4CAF50; color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; z-index: 10000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);';
+                        indicator.textContent = '✓ Cloud Sync Active';
+                        document.body.appendChild(indicator);
+                    } else {
+                        console.warn('⚠️ Firebase not available - local storage only');
+                    }
+                })
+                .catch(e => {
+                    console.warn('⚠️ Sync initialization failed:', e);
+                    console.log('Using local storage only');
+                });
+        } else {
+            console.warn('⚠️ Cross-browser sync module not loaded');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger Testing - MemoryCare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .status h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .status-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .test-voice {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+        
+        .test-location {
+            background: linear-gradient(135deg, #2196F3 0%, #0b7dda 100%);
+        }
+        
+        .test-bathroom {
+            background: linear-gradient(135deg, #FF9800 0%, #f57c00 100%);
+        }
+        
+        .test-room {
+            background: linear-gradient(135deg, #9C27B0 0%, #7b1fa2 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Trigger Testing Panel</h1>
+        <p class="subtitle">Test all monitoring triggers and voice alerts</p>
+        
+        <!-- Voice Testing -->
+        <div class="section">
+            <h2>🔊 Voice Assistance Testing</h2>
+            <button class="btn test-voice" onclick="testVoice('Hello! Voice assistance is working perfectly.')">
+                <span class="icon">🔊</span>
+                Test Basic Voice
+            </button>
+            <button class="btn test-voice" onclick="testVoice('This is a long message to test if voice works properly even in background mode. The system should speak this entire sentence clearly.')">
+                <span class="icon">💬</span>
+                Test Long Voice Message
+            </button>
+            <button class="btn test-voice" onclick="testVoiceBackground()">
+                <span class="icon">📱</span>
+                Test Background Voice (minimize app after clicking)
+            </button>
+        </div>
+        
+        <!-- Location Triggers -->
+        <div class="section">
+            <h2>📍 Location Trigger Testing</h2>
+            <button class="btn test-location" onclick="setTestHomeLocation()">
+                <span class="icon">🏠</span>
+                Set Current Location as Home
+            </button>
+            <button class="btn test-location" onclick="testLeavingHome()">
+                <span class="icon">🚶</span>
+                Simulate Leaving Home
+            </button>
+            <button class="btn test-location" onclick="testOutsideTooLong()">
+                <span class="icon">⏱️</span>
+                Simulate Outside Too Long
+            </button>
+        </div>
+        
+        <!-- Bathroom Triggers -->
+        <div class="section">
+            <h2>🚽 Bathroom Trigger Testing</h2>
+            <button class="btn test-bathroom" onclick="triggerBathroomStart()">
+                <span class="icon">🚽</span>
+                Start Bathroom Session
+            </button>
+            <button class="btn test-bathroom" onclick="testBathroomTooLong()">
+                <span class="icon">⚠️</span>
+                Simulate Bathroom Too Long (15min)
+            </button>
+            <button class="btn test-bathroom" onclick="triggerBathroomEnd()">
+                <span class="icon">✅</span>
+                End Bathroom Session
+            </button>
+        </div>
+        
+        <!-- Room Change Triggers -->
+        <div class="section">
+            <h2>🚪 Room Change Trigger Testing</h2>
+            <button class="btn test-room" onclick="triggerRoomChange()">
+                <span class="icon">🚪</span>
+                Trigger Room Change Alert
+            </button>
+        </div>
+        
+        <!-- Status Display -->
+        <div class="status">
+            <h3>📊 System Status</h3>
+            <div class="status-item">
+                <strong>Voice System:</strong> <span id="voiceStatus">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>Location Monitoring:</strong> <span id="locationStatus">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>Trigger Monitor:</strong> <span id="triggerStatus">Checking...</span>
+            </div>
+            <div class="status-item">
+                <strong>Background Service:</strong> <span id="backgroundStatus">Checking...</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Test voice
+        function testVoice(message) {
+            console.log('🔊 Testing voice:', message);
+            
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.resume();
+                
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                
+                utterance.onstart = () => {
+                    console.log('✅ Voice started');
+                    alert('Voice started! Listen...');
+                };
+                
+                utterance.onend = () => {
+                    console.log('✅ Voice completed');
+                };
+                
+                utterance.onerror = (error) => {
+                    console.error('❌ Voice error:', error);
+                    alert('Voice error: ' + error.error);
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Speech synthesis not supported!');
+            }
+        }
+        
+        // Test background voice
+        function testVoiceBackground() {
+            alert('After clicking OK, minimize the app. Voice should continue speaking.');
+            
+            setTimeout(() => {
+                testVoice('This message is being spoken while the app is in the background. If you can hear this, background voice is working!');
+            }, 1000);
+        }
+        
+        // Set home location
+        function setTestHomeLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    if (typeof setHomeLocation !== 'undefined') {
+                        setHomeLocation(lat, lng);
+                        alert(`Home location set!\nLat: ${lat}\nLng: ${lng}`);
+                        testVoice('Home location has been set successfully.');
+                    } else {
+                        localStorage.setItem('memorycare_home_location', JSON.stringify({lat, lng}));
+                        alert('Home location saved to localStorage');
+                    }
+                }, (error) => {
+                    alert('Could not get location: ' + error.message);
+                });
+            } else {
+                alert('Geolocation not supported!');
+            }
+        }
+        
+        // Simulate leaving home
+        function testLeavingHome() {
+            testVoice('You are going out. Where are you going?');
+            alert('TRIGGER: Leaving Home\nVoice should ask: "You are going out. Where are you going?"');
+        }
+        
+        // Simulate outside too long
+        function testOutsideTooLong() {
+            testVoice('You have been outside for 30 minutes. Let\'s return home.');
+            alert('TRIGGER: Outside Too Long\nVoice should say: "You have been outside for 30 minutes."');
+        }
+        
+        // Test bathroom too long
+        function testBathroomTooLong() {
+            testVoice('Are you okay? What are you doing now?');
+            alert('TRIGGER: Bathroom Too Long\nVoice should ask: "Are you okay? What are you doing now?"');
+        }
+        
+        // Check system status
+        function checkSystemStatus() {
+            // Voice
+            if (window.speechSynthesis) {
+                document.getElementById('voiceStatus').textContent = '✅ Active';
+                document.getElementById('voiceStatus').style.color = '#4CAF50';
+            } else {
+                document.getElementById('voiceStatus').textContent = '❌ Not Available';
+                document.getElementById('voiceStatus').style.color = '#f44336';
+            }
+            
+            // Location
+            if (navigator.geolocation) {
+                document.getElementById('locationStatus').textContent = '✅ Active';
+                document.getElementById('locationStatus').style.color = '#4CAF50';
+            } else {
+                document.getElementById('locationStatus').textContent = '❌ Not Available';
+                document.getElementById('locationStatus').style.color = '#f44336';
+            }
+            
+            // Trigger Monitor
+            if (typeof triggerRoomChange !== 'undefined') {
+                document.getElementById('triggerStatus').textContent = '✅ Loaded';
+                document.getElementById('triggerStatus').style.color = '#4CAF50';
+            } else {
+                document.getElementById('triggerStatus').textContent = '⚠️ Not Loaded';
+                document.getElementById('triggerStatus').style.color = '#FF9800';
+            }
+            
+            // Background Service
+            if (window.backgroundService && window.backgroundService.isRunning()) {
+                document.getElementById('backgroundStatus').textContent = '✅ Running';
+                document.getElementById('backgroundStatus').style.color = '#4CAF50';
+            } else {
+                document.getElementById('backgroundStatus').textContent = '⚠️ Not Running';
+                document.getElementById('backgroundStatus').style.color = '#FF9800';
+            }
+        }
+        
+        // Check status every 2 seconds
+        setInterval(checkSystemStatus, 2000);
+        checkSystemStatus();
+        
+        // Test voice on load
+        setTimeout(() => {
+            testVoice('Trigger testing panel is ready. All systems are operational.');
+        }, 1000);
+    </script>
+</body>
+</html>

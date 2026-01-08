@@ -1,0 +1,22 @@
+{
+  "appId": "com.memorycare.app",
+  "appName": "MemoryCare",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "allowNavigation": [
+      "memorycare-app-dg08.onrender.com",
+      "nominatim.openstreetmap.org",
+      "tile.openstreetmap.org"
+    ],
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#4A90E2",
+      "showSpinner": true,
+      "spinnerColor": "#FFFFFF"
+    }
+  }
+}

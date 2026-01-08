@@ -7,15 +7,16 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="styles.css">
     <!-- Leaflet CSS for Maps -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
     <div class="caregiver-dashboard">
         <!-- Login/Setup Modal -->
         <div id="setupModal" class="modal" style="display: none;">
             <div class="modal-content">
+                <button class="modal-close" onclick="document.getElementById('setupModal').style.display='none'" style="position: absolute; top: 10px; right: 15px; background: #f44336; color: white; border: none; font-size: 36px; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-weight: bold; z-index: 9999;">×</button>
                 <h2>🔑 Caregiver Access</h2>
                 <div class="form-section">
                     <button id="createNewSessionBtn" class="btn btn-primary" style="width: 100%; margin-bottom: 20px;">
@@ -150,7 +151,7 @@
                         
                         <div class="form-group">
                             <label>1. Choose Photo or Video</label>
-                            <input type="file" id="timelineMedia" accept="image/*,video/*" class="file-input">
+                            <input type="file" id="timelineMedia" accept="image/*,video/*,audio/*" class="file-input">
                         </div>
                         <div class="form-group">
                             <label>2. What is the memory?</label>
@@ -307,6 +308,119 @@
                 </div>
 
                 <div class="form-section">
+                    <h3>🏃 Google Fit Integration</h3>
+                    <p>Enable health data monitoring from Google Fit (steps, heart rate, sleep, calories)</p>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 15px;">
+                        <label style="margin: 0; display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="googleFitToggle" style="width: 24px; height: 24px; cursor: pointer;">
+                            <span style="font-size: 18px; font-weight: 600;">Enable Google Fit Sync</span>
+                        </label>
+                    </div>
+                    <div id="googleFitStatus" style="padding: 15px; border-radius: 8px; margin-top: 10px; display: none;">
+                        <div id="googleFitInfo"></div>
+                    </div>
+                    <div id="healthDataDisplay" style="display: none; margin-top: 15px;">
+                        <h4>Latest Health Data</h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Steps Today</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #2196F3;" id="stepsCount">0</div>
+                            </div>
+                            <div style="background: #fce4ec; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Heart Rate</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #e91e63;" id="heartRateValue">--</div>
+                            </div>
+                            <div style="background: #fff3e0; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Calories</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #ff9800;" id="caloriesValue">0</div>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                                <div style="font-size: 14px; color: #666;">Sleep (hrs)</div>
+                                <div style="font-size: 24px; font-weight: bold; color: #4caf50;" id="sleepValue">--</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666; text-align: right;" id="lastSyncTime"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>🏠 Indoor Room Locations</h3>
+                    <p>Configure room locations for automatic monitoring. Patient's phone will auto-detect which room they're in.</p>
+                    
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4 style="margin-top: 0;">How It Works:</h4>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Patient goes to each room with their phone</li>
+                            <li>Click "Save Current Room" button for that room</li>
+                            <li>App learns the location fingerprint</li>
+                            <li>Auto-detects room entry and triggers actions</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="room-setup">
+                        <div class="room-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🚽</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Bathroom</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Auto-starts timer when entered</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('bathroom')" class="btn" style="background: white; color: #667eea; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="bathroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🍳</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Kitchen</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Asks "Why are you here?" and listens</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('kitchen')" class="btn" style="background: white; color: #f5576c; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="kitchen-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🛏️</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Bedroom</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Checks if it's bedtime/naptime</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('bedroom')" class="btn" style="background: white; color: #00f2fe; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="bedroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                        
+                        <div class="room-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 36px; margin-bottom: 10px;">🛋️</div>
+                                    <div style="font-size: 20px; font-weight: bold;">Living Room</div>
+                                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">Greets patient warmly</div>
+                                </div>
+                                <button onclick="saveCurrentRoomZone('livingroom')" class="btn" style="background: white; color: #fa709a; font-weight: bold; padding: 12px 24px;">
+                                    📍 Save This Room
+                                </button>
+                            </div>
+                            <div id="livingroom-status" style="margin-top: 10px; font-size: 14px; opacity: 0.9;"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <strong>💡 Tip:</strong> For best results, have the patient stand in the CENTER of each room when saving the location. The app will remember the WiFi signal patterns for accurate detection.
+                    </div>
+                </div>
+
+                <div class="form-section">
                     <h3>📊 Recent Alerts</h3>
                     <div id="recentAlerts" class="alerts-list"></div>
                 </div>
@@ -314,6 +428,45 @@
         </div>
     </div>
 
-    <script src="caregiver.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <!-- firebase-sync.js removed: it was causing JSON.parse errors on reference codes -->
+    <script src="permissions-handler.js"></script>
+    <script src="cross-browser-sync.js?v=20260106"></script>
+    <script src="google-fit-integration.js"></script>
+    <script src="health-triggers.js"></script>
+    <script src="room-setup.js"></script>
+    <script src="caregiver.js?v=20260106"></script>
+    <script>
+        // Initialize cross-browser sync and show status
+        console.log('🚀 Starting MemoryCare Caregiver Dashboard...');
+        
+        if (typeof initCrossBrowserSync !== 'undefined') {
+            console.log('📡 Initializing Firebase sync...');
+            
+            initCrossBrowserSync()
+                .then(success => {
+                    if (success) {
+                        console.log('✅ Firebase connected - data will sync across browsers');
+                        // Show visual indicator
+                        const indicator = document.createElement('div');
+                        indicator.style.cssText = 'position: fixed; top: 10px; right: 10px; background: #4CAF50; color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; z-index: 10000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);';
+                        indicator.textContent = '✓ Cloud Sync Active';
+                        document.body.appendChild(indicator);
+                    } else {
+                        console.warn('⚠️ Firebase not available - local storage only');
+                    }
+                })
+                .catch(e => {
+                    console.warn('⚠️ Sync initialization failed:', e);
+                    console.log('Using local storage only');
+                });
+        } else {
+            console.warn('⚠️ Cross-browser sync module not loaded');
+        }
+    </script>
 </body>
 </html>

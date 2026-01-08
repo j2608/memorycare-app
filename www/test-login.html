@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Caregiver Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .test-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🧪 Test Caregiver System</h1>
+        
+        <h3>Test 1: Create New Session</h3>
+        <button onclick="testCreateSession()">Create Session</button>
+        
+        <h3>Test 2: Login with Code</h3>
+        <input type="text" id="testCode" placeholder="Enter 6-character code" maxlength="6">
+        <button onclick="testLogin()">Test Login</button>
+        
+        <h3>Test 3: Open Dashboard</h3>
+        <button onclick="openDashboard()">Open Caregiver Dashboard</button>
+        <button onclick="clearStorage()">Clear Storage & Reload</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testCreateSession() {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.textContent = 'Creating session...';
+            result.className = '';
+            
+            try {
+                const response = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'success';
+                    result.innerHTML = `
+                        ✅ Success!<br>
+                        <strong>Reference Code: ${data.referenceCode}</strong><br>
+                        <small>Saved to localStorage</small>
+                    `;
+                    localStorage.setItem('currentRefCode', data.referenceCode);
+                    document.getElementById('testCode').value = data.referenceCode;
+                } else {
+                    result.className = 'error';
+                    result.textContent = '❌ Failed to create session';
+                }
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = '❌ Error: ' + error.message;
+            }
+        }
+        
+        async function testLogin() {
+            const code = document.getElementById('testCode').value.trim().toUpperCase();
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            
+            if (code.length !== 6) {
+                result.className = 'error';
+                result.textContent = '❌ Code must be 6 characters';
+                return;
+            }
+            
+            result.textContent = 'Testing login...';
+            result.className = '';
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ referenceCode: code })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.className = 'success';
+                    result.innerHTML = `
+                        ✅ Login Success!<br>
+                        Code: ${code}<br>
+                        <small>Saved to localStorage</small>
+                    `;
+                    localStorage.setItem('currentRefCode', code);
+                } else {
+                    result.className = 'error';
+                    result.textContent = '❌ Invalid code';
+                }
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = '❌ Error: ' + error.message;
+            }
+        }
+        
+        function openDashboard() {
+            window.open('/caregiver.html', '_blank');
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            alert('Storage cleared! Reloading...');
+            location.reload();
+        }
+        
+        // Show current code if exists
+        window.onload = () => {
+            const currentCode = localStorage.getItem('currentRefCode');
+            if (currentCode) {
+                document.getElementById('testCode').value = currentCode;
+                const result = document.getElementById('result');
+                result.style.display = 'block';
+                result.className = 'success';
+                result.textContent = '✅ Current code in storage: ' + currentCode;
+            }
+        };
+    </script>
+</body>
+</html>

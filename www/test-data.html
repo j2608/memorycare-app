@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Data Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        pre {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .person-card {
+            border: 2px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .timeline-item {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 3px solid #667eea;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Data Inspector</h1>
+        <p>This tool will help you check what data is actually saved in localStorage</p>
+        
+        <button onclick="loadData()">📊 Load Data from localStorage</button>
+        <button onclick="clearData()">🗑️ Clear All Data</button>
+        <button onclick="location.href='caregiver.html'">➕ Add Data (Caregiver)</button>
+        <button onclick="location.href='patient.html'">👤 View Patient Page</button>
+        
+        <div id="output"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        function loadData() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<h2>Loading data...</h2>';
+            
+            try {
+                const refCode = localStorage.getItem('memorycare_refCode') || 'DEMO123';
+                const dataKey = `memorycare_${refCode}`;
+                const rawData = localStorage.getItem(dataKey);
+                
+                if (!rawData) {
+                    output.innerHTML = `
+                        <div class="error">
+                            <h2>❌ No Data Found!</h2>
+                            <p>Storage key: ${dataKey}</p>
+                            <p>Please add some people and memories in the <a href="caregiver.html">caregiver interface</a> first.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const data = JSON.parse(rawData);
+                
+                let html = `
+                    <div class="success">
+                        <h2>✅ Data Found!</h2>
+                        <p><strong>Storage Key:</strong> ${dataKey}</p>
+                        <p><strong>Reference Code:</strong> ${refCode}</p>
+                        <p><strong>Total People:</strong> ${data.knownPeople?.length || 0}</p>
+                    </div>
+                `;
+                
+                if (data.knownPeople && data.knownPeople.length > 0) {
+                    data.knownPeople.forEach((person, index) => {
+                        const timeline = person.timeline || [];
+                        const audioCount = timeline.filter(m => m.type === 'audio').length;
+                        const videoCount = timeline.filter(m => m.type === 'video').length;
+                        const photoCount = timeline.filter(m => m.type === 'image').length;
+                        
+                        html += `
+                            <div class="person-card">
+                                <h3>👤 Person ${index + 1}: ${person.name}</h3>
+                                <p><strong>Relation:</strong> ${person.relation}</p>
+                                <p><strong>Description:</strong> ${person.description || 'None'}</p>
+                                <p><strong>Has Photo:</strong> ${person.photo ? '✅ Yes' : '❌ No'}</p>
+                                <p><strong>Timeline Items:</strong> ${timeline.length}</p>
+                                <ul>
+                                    <li>🎙️ Audio files: ${audioCount}</li>
+                                    <li>🎥 Video files: ${videoCount}</li>
+                                    <li>📷 Photo files: ${photoCount}</li>
+                                </ul>
+                                
+                                ${timeline.length > 0 ? '<h4>Timeline Details:</h4>' : ''}
+                                ${timeline.map((item, i) => `
+                                    <div class="timeline-item">
+                                        <strong>${i + 1}. ${item.type?.toUpperCase() || 'UNKNOWN'}</strong><br>
+                                        Caption: ${item.caption || 'None'}<br>
+                                        Has Media: ${item.media ? '✅ Yes (' + Math.round(item.media.length / 1024) + ' KB)' : '❌ No'}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `
+                        <div class="error">
+                            <h3>⚠️ No people added yet</h3>
+                            <p>Go to <a href="caregiver.html">caregiver interface</a> to add people and memories.</p>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <h3>📋 Raw JSON Data:</h3>
+                    <pre>${JSON.stringify(data, null, 2).substring(0, 5000)}${rawData.length > 5000 ? '\n\n... (data truncated)' : ''}</pre>
+                `;
+                
+                output.innerHTML = html;
+                
+            } catch (error) {
+                output.innerHTML = `
+                    <div class="error">
+                        <h2>❌ Error Loading Data</h2>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+        
+        function clearData() {
+            if (confirm('Are you sure you want to delete ALL data? This cannot be undone!')) {
+                const refCode = localStorage.getItem('memorycare_refCode') || 'DEMO123';
+                const dataKey = `memorycare_${refCode}`;
+                localStorage.removeItem(dataKey);
+                alert('✅ Data cleared! Please reload the page.');
+                location.reload();
+            }
+        }
+        
+        // Auto-load on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

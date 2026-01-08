@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryCare - Alzheimer's Assistive App</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --calm: #a7c957;
+            --contrast: #ffffff;
+            --button-size: 4.5rem;
+            --font-size: 1.8rem;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f4f8;
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Role Selection */
+        #role-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            padding: 2rem;
+            min-height: 80vh;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .role-btn {
+            width: 100%;
+            max-width: 500px;
+            padding: 2.5rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .role-btn.patient {
+            background: linear-gradient(135deg, var(--calm), #8ac926);
+            color: white;
+        }
+        
+        .role-btn.caregiver {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .role-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+        }
+        
+        /* Common Elements */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .language-toggle {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.8rem 1.5rem;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .language-toggle:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Patient View */
+        #patient-view {
+            display: none;
+        }
+        
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+        
+        .card p {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 1.5rem 2rem;
+            font-size: var(--font-size);
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+            transform: scale(1.03);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #d00050;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d77a0f;
+        }
+        
+        .btn-success {
+            background: var(--calm);
+        }
+        
+        .btn-success:hover {
+            background: #8ac926;
+        }
+        
+        .sos-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 25px rgba(247, 37, 133, 0.7);
+            z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+        
+        /* Caregiver View */
+        #caregiver-view {
+            display: none;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1.2rem;
+            font-size: 1.6rem;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            background: white;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        /* Lost Guidance Mode */
+        #lost-guidance {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .arrow {
+            font-size: 10rem;
+            margin: 2rem 0;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .voice-text {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            font-size: 1.8rem;
+            display: none;
+        }
+        
+        .alert.success {
+            background: rgba(167, 201, 87, 0.2);
+            border-left: 5px solid var(--calm);
+            color: #2d311f;
+        }
+        
+        .alert.error {
+            background: rgba(247, 37, 133, 0.15);
+            border-left: 5px solid var(--danger);
+            color: #7a0043;
+        }
+        
+        .alert.warning {
+            background: rgba(248, 150, 30, 0.15);
+            border-left: 5px solid var(--warning);
+            color: #7a4c12;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .patient-grid, .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .role-btn {
+                font-size: 2rem;
+                padding: 2rem;
+            }
+            
+            .btn {
+                font-size: 1.8rem;
+                padding: 1.2rem;
+            }
+            
+            .sos-btn {
+                width: 5rem;
+                height: 5rem;
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* Telugu Font */
+        .telugu {
+            font-family: 'Noto Sans Telugu', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Role Selection -->
+        <div id="role-selection">
+            <h1>Welcome to MemoryCare</h1>
+            <p style="font-size: 1.8rem; margin-bottom: 2rem; text-align: center;">Select your role to begin</p>
+            <button class="role-btn patient" onclick="showView('patient')">
+                I am a Patient
+            </button>
+            <button class="role-btn caregiver" onclick="showView('caregiver')">
+                I am a Caregiver
+            </button>
+        </div>
+
+        <!-- Patient View -->
+        <div id="patient-view">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">MC</div>
+                    <h1>MemoryCare</h1>
+                </div>
+                <button class="language-toggle" id="lang-toggle" onclick="toggleLanguage()">English</button>
+            </div>
+
+            <div class="patient-grid">
+                <div class="card">
+                    <h2>Daily Routine</h2>
+                    <p id="routine-display">Loading routine...</p>
+                    <button class="btn" onclick="speakRoutine()">
+                        <span>Listen to Routine</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>Medicines</h2>
+                    <p id="meds-display">No medicines scheduled</p>
+                    <button class="btn btn-success" onclick="takeMedicine()">
+                        I Took My Medicine
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>Important People</h2>
+                    <p>Tap to recognize faces</p>
+                    <button class="btn" onclick="startFaceRecognition()">
+                        Face Recognition
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>Appointments</h2>
+                    <p id="appointments-display">No upcoming appointments</p>
+                    <button class="btn" onclick="viewAppointments()">
+                        View Appointments
+                    </button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-warning" onclick="activateLostMode()">
+                    Help Me - I'm Lost
+                </button>
+                <button class="btn" onclick="checkWatchReminder()">
+                    Check Watch Status
+                </button>
+            </div>
+        </div>
+
+        <!-- Caregiver View -->
+        <div id="caregiver-view">
+            <div class="header">
+                <div class="logo">
+                    <div class="logo-icon">MC</div>
+                    <h1>MemoryCare</h1>
+                </div>
+                <button class="language-toggle" id="lang-toggle-care" onclick="toggleLanguage()">English</button>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Patient Profile</h2>
+                    <div class="form-group">
+                        <label for="patient-name">Patient Name</label>
+                        <input type="text" id="patient-name" value="Ramu" placeholder="Enter patient name">
+                    </div>
+                    <div class="form-group">
+                        <label for="patient-age">Age</label>
+                        <input type="number" id="patient-age" value="72" min="1" max="120">
+                    </div>
+                    <div class="form-group">
+                        <label for="patient-condition">Condition</label>
+                        <input type="text" id="patient-condition" value="Early-stage Alzheimer's" placeholder="Condition details">
+                    </div>
+                    <button class="btn" onclick="savePatientProfile()">Save Profile</button>
+                </div>
+
+                <div class="card">
+                    <h2>Daily Routine</h2>
+                    <div class="form-group">
+                        <label for="routine-time">Time (HH:MM)</label>
+                        <input type="time" id="routine-time" value="08:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="routine-activity">Activity</label>
+                        <input type="text" id="routine-activity" placeholder="e.g. Morning Walk">
+                    </div>
+                    <button class="btn" onclick="addRoutineItem()">Add to Routine</button>
+                    <div id="routine-list" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Medicine Schedule</h2>
+                    <div class="form-group">
+                        <label for="med-time">Time (HH:MM)</label>
+                        <input type="time" id="med-time" value="09:00">
+                    </div>
+                    <div class="form-group">
+                        <label for="med-name">Medicine Name</label>
+                        <input type="text" id="med-name" placeholder="e.g. Aspirin">
+                    </div>
+                    <div class="form-group">
+                        <label for="med-dose">Dosage</label>
+                        <input type="text" id="med-dose" placeholder="e.g. 1 tablet">
+                    </div>
+                    <button class="btn" onclick="addMedicine()">Schedule Medicine</button>
+                    <div id="med-list" style="margin-top: 1.5rem;"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Appointments</h2>
+                    <div class="form-group">
+                        <label for="appt-date">Date</label>
+                        <input type="date" id="appt-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="appt-time">Time (HH:MM)</label>
+                        <input type="time" id="appt-time">
+                    </div>
+                    <div class="form-group">
+                        <label for="appt-doctor">Doctor/Specialist</label>
+                        <input type="text" id="appt-doctor" placeholder="e.g. Dr. Smith">
+                    </div>
+                    <button class="btn" onclick="addAppointment()">Add Appointment</button>
+                    <div id="appt-list" style="margin-top: 1.5rem;"></div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Watch Charging Reminder</h2>
+                    <div class="form-group">
+                        <label for="watch-time">Charging Time (HH:MM)</label>
+                        <input type="time" id="watch-time" value="20:00">
+                    </div>
+                    <button class="btn" onclick="setWatchReminder()">Set Reminder</button>
+                    <p id="watch-status" style="margin-top: 1rem; font-size: 1.6rem;"></p>
+                </div>
+
+                <div class="card">
+                    <h2>Important Contacts</h2>
+                    <div class="form-group">
+                        <label for="contact-name">Name</label>
+                        <input type="text" id="contact-name" placeholder="e.g. Lakshmi">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-relation">Relation</label>
+                        <input type="text" id="contact-relation" placeholder="e.g. Wife">
+                    </div>
+                    <button class="btn" onclick="addContact()">Add Contact</button>
+                    <div id="contact-list" style="margin-top: 1.5rem;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lost Guidance Mode -->
+        <div id="lost-guidance">
+            <div class="arrow">↑</div>
+            <div class="voice-text" id="voice-instruction">
+                Meeru tappipoyaru. Bhayapadakandi.<br>
+                You are lost. Don't be afraid.
+            </div>
+            <p style="font-size: 2.2rem; margin-top: 1rem;">Emergency services notified</p>
+            <button class="btn" style="margin-top: 3rem; background: var(--danger);" onclick="deactivateLostMode()">
+                I Am Safe Now
+            </button>
+        </div>
+
+        <!-- Alerts -->
+        <div id="alert-container" style="position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 1000;"></div>
+    </div>
+
+    <!-- SOS Button (always visible for patient) -->
+    <button class="sos-btn" id="sos-button" onclick="triggerSOS()">SOS</button>
+
+    <script>
+        // In-memory storage (simulating backend)
+        let memoryProfile = {
+            patient: {
+                name: "Ramu",
+                age: 72,
+                condition: "Early-stage Alzheimer's"
+            },
+            routine: [
+                { time: "07:00", activity: "Wake up and have breakfast" },
+                { time: "10:00", activity: "Morning walk" },
+                { time: "13:00", activity: "Lunch" },
+                { time: "15:00", activity: "Rest time" },
+                { time: "18:00", activity: "Evening tea" },
+                { time: "20:00", activity: "Dinner" },
+                { time: "21:00", activity: "Bedtime" }
+            ],
+            contacts: [
+                { name: "Lakshmi", relation: "Wife" },
+                { name: "Arjun", relation: "Son" },
+                { name: "Priya", relation: "Daughter" }
+            ],
+            appointments: [],
+            medicines: [],
+            watchChargingTime: "20:00",
+            language: "en" // 'en' or 'te'
+        };
+
+        // Current user role
+        let currentUser = null;
+        let isLostModeActive = false;
+        let watchReminderAcknowledged = true;
+        let medicineHistory = [];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default for appointments
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appt-date').value = today;
+            
+            // Initialize caregiver view
+            renderRoutineList();
+            renderMedicineList();
+            renderAppointmentList();
+            renderContactList();
+            updateWatchStatus();
+            
+            // Initialize patient view
+            updatePatientView();
+            
+            // Start background checks
+            setInterval(checkReminders, 60000); // Check every minute
+            
+            // Hide SOS button for caregiver
+            document.getElementById('sos-button').style.display = 'none';
+        });
+
+        // Show view based on role
+        function showView(role) {
+            currentUser = role;
+            document.getElementById('role-selection').style.display = 'none';
+            
+            if (role === 'patient') {
+                document.getElementById('patient-view').style.display = 'block';
+                document.getElementById('sos-button').style.display = 'flex';
+                updatePatientView();
+            } else {
+                document.getElementById('caregiver-view').style.display = 'block';
+                document.getElementById('sos-button').style.display = 'none';
+            }
+            
+            // Update language toggle text
+            const langToggle = document.getElementById('lang-toggle' + (role === 'caregiver' ? '-care' : ''));
+            langToggle.textContent = memoryProfile.language === 'te' ? 'తెలుగు' : 'English';
+        }
+
+        // Toggle language between English and Telugu
+        function toggleLanguage() {
+            memoryProfile.language = memoryProfile.language === 'en' ? 'te' : 'en';
+            const langToggle = document.getElementById('lang-toggle' + (currentUser === 'caregiver' ? '-care' : ''));
+            langToggle.textContent = memoryProfile.language === 'te' ? 'తెలుగు' : 'English';
+            updatePatientView();
+            renderRoutineList();
+            renderMedicineList();
+            renderAppointmentList();
+        }
+
+        // Update patient view with current data
+        function updatePatientView() {
+            if (currentUser !== 'patient') return;
+            
+            // Update routine display
+            const routineDisplay = document.getElementById('routine-display');
+            if (memoryProfile.routine.length > 0) {
+                const now = new Date();
+                const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                let nextActivity = "No upcoming activities";
+                
+                // Find next activity
+                for (let item of memoryProfile.routine) {
+                    if (item.time > currentTime) {
+                        nextActivity = `${item.time}: ${item.activity}`;
+                        break;
+                    }
+                }
+                
+                routineDisplay.textContent = nextActivity;
+            } else {
+                routineDisplay.textContent = "No routine scheduled";
+            }
+            
+            // Update medicines display
+            const medsDisplay = document.getElementById('meds-display');
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            let dueMeds = memoryProfile.medicines.filter(med => 
+                med.time === currentTime && !med.taken
+            );
+            
+            if (dueMeds.length > 0) {
+                medsDisplay.innerHTML = `Time to take: <strong>${dueMeds[0].name}</strong><br>Dosage: ${dueMeds[0].dosage}`;
+                // Trigger medicine reminder
+                speak(medicineReminderText(dueMeds[0]));
+                showMedicineAlert(dueMeds[0]);
+            } else {
+                medsDisplay.textContent = "No medicines due now";
+            }
+            
+            // Update appointments display
+            const apptsDisplay = document.getElementById('appointments-display');
+            if (memoryProfile.appointments.length > 0) {
+                const nextAppt = memoryProfile.appointments[0];
+                apptsDisplay.textContent = `Next: ${formatDate(nextAppt.date)} at ${nextAppt.time} - ${nextAppt.doctor}`;
+            } else {
+                apptsDisplay.textContent = "No upcoming appointments";
+            }
+        }
+
+        // Speak text using Web Speech API
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = memoryProfile.language === 'te' ? 'te-IN' : 'en-US';
+                utterance.rate = 0.8;
+                utterance.volume = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                console.log("Speech synthesis not supported");
+            }
+        }
+
+        // Speak routine
+        function speakRoutine() {
+            let text = "";
+            if (memoryProfile.language === 'te') {
+                text += "మీ దినచర్య: ";
+            } else {
+                text += "Your daily routine: ";
+            }
+            
+            memoryProfile.routine.forEach(item => {
+                text += `${item.time} - ${item.activity}. `;
+            });
+            
+            speak(text);
+            showAlert("Routine played", "success");
+        }
+
+        // SOS Emergency
+        function triggerSOS() {
+            speak("Emergency SOS activated. Help is on the way.");
+            
+            // Get location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        const message = `EMERGENCY: Patient SOS activated! Location: ${latitude}, ${longitude}`;
+                        sendCaregiverAlert(message);
+                        showAlert("SOS Sent! Help is coming.", "error");
+                    },
+                    (error) => {
+                        const message = "EMERGENCY: Patient SOS activated! Unable to get location.";
+                        sendCaregiverAlert(message);
+                        showAlert("SOS Sent! Help is coming.", "error");
+                    }
+                );
+            } else {
+                const message = "EMERGENCY: Patient SOS activated! Geolocation not supported.";
+                sendCaregiverAlert(message);
+                showAlert("SOS Sent! Help is coming.", "error");
+            }
+        }
+
+        // Lost Guidance Mode
+        function activateLostMode() {
+            isLostModeActive = true;
+            document.getElementById('lost-guidance').style.display = 'flex';
+            
+            // Speak guidance
+            let text = "";
+            if (memoryProfile.language === 'te') {
+                text += "మీరు తప్పిపోయారు. భయపడకండి. సహాయం వస్తోంది.";
+            } else {
+                text += "You are lost. Don't be afraid. Help is coming.";
+            }
+            speak(text);
+            
+            // Notify caregiver
+            sendCaregiverAlert("ALERT: Patient activated Lost Guidance Mode!");
+            
+            // Simulate location tracking
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    (position) => {
+                        // In a real app, this would send location to caregiver
+                        console.log("Lost mode location:", position.coords);
+                    },
+                    (error) => {
+                        console.log("Location error in lost mode:", error);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            }
+        }
+
+        function deactivateLostMode() {
+            isLostModeActive = false;
+            document.getElementById('lost-guidance').style.display = 'none';
+            speak("Thank you for letting us know you're safe.");
+        }
+
+        // Face Recognition (simulated)
+        function startFaceRecognition() {
+            speak("Starting face recognition. Please look at the camera.");
+            
+            // Simulate recognition process
+            setTimeout(() => {
+                // Randomly decide if face is recognized
+                const recognized = Math.random() > 0.3;
+                
+                if (recognized && memoryProfile.contacts.length > 0) {
+                    const contact = memoryProfile.contacts[Math.floor(Math.random() * memoryProfile.contacts.length)];
+                    let message = "";
+                    if (memoryProfile.language === 'te') {
+                        message = `ఇది మీ ${contact.relation} ${contact.name}.`;
+                    } else {
+                        message = `This is your ${contact.relation} ${contact.name}.`;
+                    }
+                    speak(message);
+                    showAlert(message, "success");
+                } else {
+                    speak("Unknown person detected. Notifying caregiver.");
+                    sendCaregiverAlert("ALERT: Unknown person detected near patient!");
+                    showAlert("Unknown person detected", "warning");
+                }
+            }, 2000);
+        }
+
+        // Medicine functions
+        function takeMedicine() {
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            // Mark due medicines as taken
+            let taken = false;
+            memoryProfile.medicines.forEach(med => {
+                if (med.time === currentTime && !med.taken) {
+                    med.taken = true;
+                    medicineHistory.push({
+                        name: med.name,
+                        time: currentTime,
+                        date: new Date().toISOString().split('T')[0]
+                    });
+                    taken = true;
+                }
+            });
+            
+            if (taken) {
+                speak("Thank you for taking your medicine.");
+                showAlert("Medicine recorded as taken", "success");
+                updatePatientView();
+            } else {
+                speak("There are no medicines due right now.");
+                showAlert("No medicines due now", "warning");
+            }
+        }
+
+        function showMedicineAlert(med) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert error';
+            alertDiv.innerHTML = `
+                <strong>Medicine Time!</strong><br>
+                ${med.name} - ${med.dosage}
+            `;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.style.zIndex = '1000';
+            alertDiv.style.width = '90%';
+            alertDiv.style.maxWidth = '500px';
+            
+            document.body.appendChild(alertDiv);
+            
+            // Remove after 10 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 10000);
+            
+            // Play sound
+            playAlarmSound();
+        }
+
+        function medicineReminderText(med) {
+            if (memoryProfile.language === 'te') {
+                return `దయచేసి మీ ${med.name} మాత్ర తీసుకోండి. డోస్: ${med.dosage}`;
+            } else {
+                return `Please take your ${med.name}. Dosage: ${med.dosage}`;
+            }
+        }
+
+        // Watch charging reminder
+        function checkWatchReminder() {
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            if (currentTime === memoryProfile.watchChargingTime && !watchReminderAcknowledged) {
+                speak("Please charge your watch now");
+                showAlert("Watch Charging Reminder", "warning");
+                playAlarmSound();
+            } else {
+                speak("Your watch is charged. Thank you!");
+                showAlert("Watch is charged", "success");
+            }
+        }
+
+        function setWatchReminder() {
+            memoryProfile.watchChargingTime = document.getElementById('watch-time').value;
+            watchReminderAcknowledged = false;
+            updateWatchStatus();
+            showAlert("Watch charging reminder set", "success");
+        }
+
+        function updateWatchStatus() {
+            const statusEl = document.getElementById('watch-status');
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            if (currentTime === memoryProfile.watchChargingTime) {
+                statusEl.textContent = "Current charging time";
+                statusEl.style.color = "var(--warning)";
+            } else {
+                statusEl.textContent = `Next reminder at ${memoryProfile.watchChargingTime}`;
+                statusEl.style.color = "var(--success)";
+            }
+        }
+
+        // Caregiver functions
+        function savePatientProfile() {
+            memoryProfile.patient.name = document.getElementById('patient-name').value;
+            memoryProfile.patient.age = document.getElementById('patient-age').value;
+            memoryProfile.patient.condition = document.getElementById('patient-condition').value;
+            showAlert("Patient profile saved", "success");
+        }
+
+        function addRoutineItem() {
+            const time = document.getElementById('routine-time').value;
+            const activity = document.getElementById('routine-activity').value;
+            
+            if (!activity.trim()) {
+                showAlert("Please enter an activity", "error");
+                return;
+            }
+            
+            memoryProfile.routine.push({ time, activity });
+            memoryProfile.routine.sort((a, b) => a.time.localeCompare(b.time));
+            renderRoutineList();
+            showAlert("Routine item added", "success");
+        }
+
+        function addMedicine() {
+            const time = document.getElementById('med-time').value;
+            const name = document.getElementById('med-name').value;
+            const dosage = document.getElementById('med-dose').value;
+            
+            if (!name.trim() || !dosage.trim()) {
+                showAlert("Please fill all fields", "error");
+                return;
+            }
+            
+            memoryProfile.medicines.push({ time, name, dosage, taken: false });
+            memoryProfile.medicines.sort((a, b) => a.time.localeCompare(b.time));
+            renderMedicineList();
+            showAlert("Medicine scheduled", "success");
+        }
+
+        function addAppointment() {
+            const date = document.getElementById('appt-date').value;
+            const time = document.getElementById('appt-time').value;
+            const doctor = document.getElementById('appt-doctor').value;
+            
+            if (!date || !time || !doctor.trim()) {
+                showAlert("Please fill all fields", "error");
+                return;
+            }
+            
+            memoryProfile.appointments.push({ date, time, doctor });
+            memoryProfile.appointments.sort((a, b) => 
+                new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)
+            );
+            renderAppointmentList();
+            showAlert("Appointment added", "success");
+            
+            // Set up reminders
+            setAppointmentReminders(date, time, doctor);
+        }
+
+        function addContact() {
+            const name = document.getElementById('contact-name').value;
+            const relation = document.getElementById('contact-relation').value;
+            
+            if (!name.trim() || !relation.trim()) {
+                showAlert("Please fill all fields", "error");
+                return;
+            }
+            
+            memoryProfile.contacts.push({ name, relation });
+            renderContactList();
+            showAlert("Contact added", "success");
+        }
+
+        // Render lists for caregiver
+        function renderRoutineList() {
+            const listEl = document.getElementById('routine-list');
+            listEl.innerHTML = '';
+            
+            if (memoryProfile.routine.length === 0) {
+                listEl.innerHTML = '<p>No routine items</p>';
+                return;
+            }
+            
+            memoryProfile.routine.forEach((item, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.style.padding = '0.8rem 0';
+                itemEl.style.borderBottom = '1px solid #eee';
+                itemEl.innerHTML = `
+                    <strong>${item.time}</strong>: ${item.activity}
+                    <button onclick="removeRoutineItem(${index})" style="margin-left: 1rem; background: var(--danger); color: white; border: none; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 1.4rem;">Remove</button>
+                `;
+                listEl.appendChild(itemEl);
+            });
+        }
+
+        function removeRoutineItem(index) {
+            memoryProfile.routine.splice(index, 1);
+            renderRoutineList();
+            showAlert("Routine item removed", "success");
+        }
+
+        function renderMedicineList() {
+            const listEl = document.getElementById('med-list');
+            listEl.innerHTML = '';
+            
+            if (memoryProfile.medicines.length === 0) {
+                listEl.innerHTML = '<p>No medicines scheduled</p>';
+                return;
+            }
+            
+            memoryProfile.medicines.forEach((med, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.style.padding = '0.8rem 0';
+                itemEl.style.borderBottom = '1px solid #eee';
+                const status = med.taken ? ' (Taken)' : ' (Pending)';
+                itemEl.innerHTML = `
+                    <strong>${med.time}</strong>: ${med.name} - ${med.dosage}${status}
+                    <button onclick="removeMedicine(${index})" style="margin-left: 1rem; background: var(--danger); color: white; border: none; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 1.4rem;">Remove</button>
+                `;
+                listEl.appendChild(itemEl);
+            });
+        }
+
+        function removeMedicine(index) {
+            memoryProfile.medicines.splice(index, 1);
+            renderMedicineList();
+            showAlert("Medicine removed", "success");
+        }
+
+        function renderAppointmentList() {
+            const listEl = document.getElementById('appt-list');
+            listEl.innerHTML = '';
+            
+            if (memoryProfile.appointments.length === 0) {
+                listEl.innerHTML = '<p>No appointments</p>';
+                return;
+            }
+            
+            memoryProfile.appointments.forEach((appt, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.style.padding = '0.8rem 0';
+                itemEl.style.borderBottom = '1px solid #eee';
+                itemEl.innerHTML = `
+                    <strong>${formatDate(appt.date)} ${appt.time}</strong>: ${appt.doctor}
+                    <button onclick="removeAppointment(${index})" style="margin-left: 1rem; background: var(--danger); color: white; border: none; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 1.4rem;">Remove</button>
+                `;
+                listEl.appendChild(itemEl);
+            });
+        }
+
+        function removeAppointment(index) {
+            memoryProfile.appointments.splice(index, 1);
+            renderAppointmentList();
+            showAlert("Appointment removed", "success");
+        }
+
+        function renderContactList() {
+            const listEl = document.getElementById('contact-list');
+            listEl.innerHTML = '';
+            
+            if (memoryProfile.contacts.length === 0) {
+                listEl.innerHTML = '<p>No contacts</p>';
+                return;
+            }
+            
+            memoryProfile.contacts.forEach((contact, index) => {
+                const itemEl = document.createElement('div');
+                itemEl.style.padding = '0.8rem 0';
+                itemEl.style.borderBottom = '1px solid #eee';
+                itemEl.innerHTML = `
+                    <strong>${contact.name}</strong> (${contact.relation})
+                    <button onclick="removeContact(${index})" style="margin-left: 1rem; background: var(--danger); color: white; border: none; border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 1.4rem;">Remove</button>
+                `;
+                listEl.appendChild(itemEl);
+            });
+        }
+
+        function removeContact(index) {
+            memoryProfile.contacts.splice(index, 1);
+            renderContactList();
+            showAlert("Contact removed", "success");
+        }
+
+        // Helper functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(memoryProfile.language === 'te' ? 'te-IN' : 'en-US', options);
+        }
+
+        function sendCaregiverAlert(message) {
+            // In a real app, this would send to caregiver dashboard
+            console.log("Caregiver Alert:", message);
+            
+            // Show notification if supported
+            if (Notification.permission === "granted") {
+                new Notification("MemoryCare Alert", { body: message });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification("MemoryCare Alert", { body: message });
+                    }
+                });
+            }
+        }
+
+        function showAlert(message, type = "info") {
+            const alertContainer = document.getElementById('alert-container');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function playAlarmSound() {
+            // Create a simple alarm sound using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 800;
+                gainNode.gain.value = 0.3;
+                
+                oscillator.start();
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 1000);
+            } catch (e) {
+                console.log("Audio context not supported");
+            }
+        }
+
+        // Background reminder checks
+        function checkReminders() {
+            if (currentUser !== 'patient') return;
+            
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const today = now.toISOString().split('T')[0];
+            
+            // Check watch reminder
+            if (currentTime === memoryProfile.watchChargingTime && !watchReminderAcknowledged) {
+                speak("Please charge your watch now");
+                showAlert("Watch Charging Reminder", "warning");
+                playAlarmSound();
+            }
+            
+            // Check medicine reminders
+            memoryProfile.medicines.forEach(med => {
+                if (med.time === currentTime && !med.taken) {
+                    showMedicineAlert(med);
+                    speak(medicineReminderText(med));
+                }
+            });
+            
+            // Update view
+            updatePatientView();
+        }
+
+        // Set appointment reminders
+        function setAppointmentReminders(date, time, doctor) {
+            // This would set actual reminders in a real app
+            // For demo, we'll just log
+            console.log(`Appointment reminder set for ${date} ${time} with ${doctor}`);
+        }
+
+        // Request notification permission on load
+        if ('Notification' in window) {
+            Notification.requestPermission();
+        }
+    </script>
+</body>
+</html>
+

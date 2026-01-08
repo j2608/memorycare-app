@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Tabs - MemoryCare</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f0f0f0; }
+        .test-section { background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { padding: 15px 30px; font-size: 16px; margin: 10px; cursor: pointer; border: none; border-radius: 5px; background: #4CAF50; color: white; }
+        button:hover { background: #45a049; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; font-weight: bold; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { background: #282c34; color: #abb2bf; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .code-display { font-size: 32px; font-weight: bold; color: #4CAF50; text-align: center; padding: 20px; background: #f9f9f9; border-radius: 10px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 MemoryCare Tab Test</h1>
+    
+    <div class="test-section">
+        <h2>Step 1: Check Server</h2>
+        <button onclick="checkServer()">🔍 Check Server Status</button>
+        <div id="serverStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 2: Create Session</h2>
+        <button onclick="createSession()">➕ Create New Session</button>
+        <div id="sessionStatus"></div>
+        <div id="codeDisplay" class="code-display" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 3: Test Tabs</h2>
+        <button onclick="openCaregiver()">🚀 Open Caregiver Dashboard</button>
+        <div class="info status">
+            After opening, try clicking these tabs:<br>
+            👤 Patient Profile → 📅 Daily Routine → 👥 Known People → 📍 Known Places
+        </div>
+        <div id="testInstructions" style="display: none;" class="warning status">
+            <strong>TESTING CHECKLIST:</strong><br>
+            ✓ Click "📅 Daily Routine" - should switch tabs<br>
+            ✓ Click "👥 Known People" - should switch tabs<br>
+            ✓ Click "📍 Known Places" - should show map<br>
+            ✓ All forms should be visible and working<br><br>
+            Press F12 and check console for: "Tab clicked: routine"
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Output</h2>
+        <button onclick="clearConsole()">🗑️ Clear Console</button>
+        <pre id="console">Waiting for tests...</pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Quick Actions</h2>
+        <button onclick="clearStorage()">🔄 Clear All & Restart</button>
+        <button onclick="window.location.reload()">↻ Reload This Page</button>
+    </div>
+
+    <script>
+        let consoleLines = [];
+        
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            consoleLines.push(`[${time}] ${icons[type] || 'ℹ️'} ${msg}`);
+            document.getElementById('console').textContent = consoleLines.slice(-15).join('\n');
+        }
+        
+        function clearConsole() {
+            consoleLines = [];
+            document.getElementById('console').textContent = 'Console cleared.';
+        }
+        
+        async function checkServer() {
+            log('Checking server...', 'info');
+            const statusDiv = document.getElementById('serverStatus');
+            
+            try {
+                const response = await fetch('/api/data');
+                if (response.ok) {
+                    statusDiv.innerHTML = '<div class="success status">✅ Server is running on port 8080!</div>';
+                    log('Server check: SUCCESS', 'success');
+                    return true;
+                } else {
+                    throw new Error('Server responded but with error');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error status">
+                        ❌ Server is NOT running!<br>
+                        <strong>ACTION:</strong> Open terminal and run: <code>node app-server.js</code>
+                    </div>
+                `;
+                log('Server check: FAILED - ' + error.message, 'error');
+                return false;
+            }
+        }
+        
+        async function createSession() {
+            log('Creating session...', 'info');
+            const statusDiv = document.getElementById('sessionStatus');
+            const codeDisplayDiv = document.getElementById('codeDisplay');
+            
+            try {
+                const response = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const code = data.referenceCode;
+                    localStorage.setItem('currentRefCode', code);
+                    
+                    statusDiv.innerHTML = '<div class="success status">✅ Session created successfully!</div>';
+                    codeDisplayDiv.textContent = `Your Reference Code: ${code}`;
+                    codeDisplayDiv.style.display = 'block';
+                    document.getElementById('testInstructions').style.display = 'block';
+                    
+                    log(`Session created: ${code}`, 'success');
+                    log('Reference code saved to localStorage', 'success');
+                    
+                    return code;
+                } else {
+                    throw new Error('Failed to create session');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error status">❌ Error: ${error.message}</div>`;
+                log('Create session: FAILED - ' + error.message, 'error');
+                return null;
+            }
+        }
+        
+        function openCaregiver() {
+            const code = localStorage.getItem('currentRefCode');
+            if (!code) {
+                alert('⚠️ Please create a session first (Step 2)');
+                log('Cannot open caregiver: no session', 'warning');
+                return;
+            }
+            
+            log('Opening caregiver dashboard...', 'info');
+            log('Reference code in storage: ' + code, 'info');
+            log('WATCH FOR: Tab clicks should work!', 'success');
+            
+            window.open('/caregiver.html', '_blank');
+        }
+        
+        function clearStorage() {
+            if (confirm('Clear all data and start fresh?')) {
+                localStorage.clear();
+                log('Storage cleared', 'success');
+                window.location.reload();
+            }
+        }
+        
+        // Auto-check server on load
+        window.addEventListener('load', () => {
+            log('Test page loaded', 'info');
+            checkServer();
+            
+            const code = localStorage.getItem('currentRefCode');
+            if (code) {
+                document.getElementById('codeDisplay').textContent = `Current Code: ${code}`;
+                document.getElementById('codeDisplay').style.display = 'block';
+                document.getElementById('testInstructions').style.display = 'block';
+                log('Found existing code: ' + code, 'info');
+            }
+        });
+    </script>
+</body>
+</html>

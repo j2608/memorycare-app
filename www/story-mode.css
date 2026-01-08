@@ -1,0 +1,116 @@
+/* ============================================
+   MEMORY STORY MODE
+   ============================================ */
+
+.memory-story-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fdfbf7 0%, #fff1e6 100%); /* Warm, calm colors */
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease, visibility 1s ease;
+}
+
+.memory-story-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.story-container {
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+.story-photo-frame {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 2rem;
+    border: 8px solid #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+}
+
+.story-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 10s ease;
+}
+
+.story-photo.zoom-effect {
+    transform: scale(1.2);
+}
+
+.story-text {
+    font-family: 'Georgia', serif;
+    color: #5d4037;
+    font-size: 2rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    min-height: 150px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.story-text.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.story-controls {
+    margin-top: 2rem;
+    opacity: 0;
+    transition: opacity 1s ease 2s; /* Delay appearance */
+}
+
+.story-controls.visible {
+    opacity: 1;
+}
+
+.story-btn {
+    background: #8d6e63;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.story-btn:hover {
+    background: #6d4c41;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Warm atmosphere overlay */
+.atmosphere-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, transparent 0%, rgba(255, 241, 230, 0.8) 100%);
+    pointer-events: none;
+}
